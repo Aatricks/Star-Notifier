@@ -1,6 +1,8 @@
 # Star Notifier
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache](https://img.shields.io/badge/License-Apache-yellow.svg)](https://opensource.org/licenses/Apache-2.0)
+[![GitHub issues](https://img.shields.io/github/issues/Aatricks/Star-Notifier)](https://github.com/Aatricks/Star-Notifier/issues)
+[![GitHub stars](https://img.shields.io/github/stars/Aatricks/Star-Notifier?style=social)](https://github.com/Aatricks/Star-Notifier/stargazers)
 
 A GitHub star and fork notifier Android app made for anxious developers who want to know immediately when their repositories gain attention.
 
@@ -9,9 +11,12 @@ A GitHub star and fork notifier Android app made for anxious developers who want
 ## ✨ Features
 
 - **Real-time Notifications**: Get instant push notifications when your GitHub repositories receive new stars or forks
+- **Traffic Monitoring**: Track repository views and clones with lifetime totals
 - **Selective Monitoring**: Choose which repositories to monitor from your GitHub account
 - **Background Monitoring**: Automatic checks every 15 minutes using Android WorkManager
-- **Repository Totals**: View total stars and forks across all selected repositories
+- **Repository Totals**: View total stars, forks, views, and clones across all selected repositories
+- **GitHub-Inspired UI**: Modern Material Design 3 interface with GitHub's color palette and Octicons
+- **AMOLED Support**: Pure black theme for AMOLED displays
 - **Privacy Focused**: Uses GitHub's public API - no private repository access required
 - **Material Design**: Modern Android UI following Material Design 3 guidelines
 
@@ -36,13 +41,14 @@ cd Star-Notifier
 
 1. **Launch the app** after installation
 2. **Grant notification permissions** when prompted
-3. **Enter your GitHub username** in the settings screen
-4. **Add a personal access token** (optional, for private repositories):
+3. **Open the configuration sidebar** using the hamburger menu (☰) in the top-left corner
+4. **Enter your GitHub username** in the settings screen
+5. **Add a personal access token** (optional, for private repositories):
    - Go to [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)
    - Generate a new token with `public_repo` scope
    - Paste the token in the app settings
-5. **Select repositories** to monitor from the list (sorted by ⭐ stars, shows repo name, ⭐ stars and 🍴 forks)
-6. **Save configuration** and start monitoring!
+6. **Select repositories** to monitor from the list (sorted by stars, shows repo name)
+7. **Save configuration** and start monitoring!
 
 ## 🎯 Usage
 
@@ -75,9 +81,10 @@ cd Star-Notifier
 - **WorkManager**: Reliable background task scheduling
 - **Retrofit + OkHttp**: HTTP client for GitHub API integration
 - **SharedPreferences**: Local data persistence
+- **Material Design 3**: Modern UI with DrawerLayout navigation and GitHub-inspired theming
 
 ### Key Components
-- `SettingsActivity`: Main configuration screen
+- `SettingsActivity`: Main configuration screen with navigation drawer
 - `GitHubCheckWorker`: Background monitoring worker
 - `NotificationHelper`: Android notification management
 - `TestBroadcastReceiver`: ADB command handler for testing
@@ -90,7 +97,7 @@ cd Star-Notifier
 - **Gson**: JSON parsing
 
 ### API Usage
-- **GitHub REST API v3**: Public repository information
+- **GitHub REST API v3**: Public repository information and traffic data
 - **Rate Limits**: Respects GitHub's API rate limits (60 requests/hour for unauthenticated, 5000 for authenticated)
 
 ## 🤝 Contributing
