@@ -1,5 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- GitHub-inspired colors -->
+    <color name="github_blue">#0969DA</color>
+    <color name="github_blue_light">#218BFF</color>
+    <color name="github_blue_dark">#0550AE</color>
+    
+    <color name="github_gray">#656D76</color>
+    <color name="github_gray_light">#8C959F</color>
+    <color name="github_gray_dark">#24292F</color>
+    
+    <color name="github_bg">#FFFFFF</color>
+    <color name="github_surface">#F6F8FA</color>
+    <color name="github_border">#D0D7DE</color>
+    
+    <!-- Dark theme colors -->
+    <color name="github_bg_dark">#0D1117</color>
+    <color name="github_surface_dark">#161B22</color>
+    <color name="github_surface_container_dark">#21262D</color>
+    <color name="github_surface_highest_dark">#30363D</color>
+    <color name="github_border_dark">#30363D</color>
+    <color name="github_text_dark">#C9D1D9</color>
+    <color name="github_text_secondary_dark">#8B949E</color>
+    
+    <!-- Accent colors -->
+    <color name="github_green">#1A7F37</color>
+    <color name="github_orange">#BC4C00</color>
+    <color name="github_red">#CF222E</color>
+    <color name="github_purple">#8250DF</color>
+    
+    <!-- Legacy Material colors -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -7,4 +36,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- AMOLED pure black theme -->
+    <color name="amoled_surface">#0A0A0A</color>
+    <color name="amoled_surface_high">#151515</color>
 </resources>

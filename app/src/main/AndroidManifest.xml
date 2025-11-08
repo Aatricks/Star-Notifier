@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.StarNotifier">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.view.SettingsActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.StarNotifier">
@@ -26,11 +26,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".ui.view.SettingsActivity"
-            android:exported="false"
-            android:label="Settings" />
     </application>
 
 </manifest>

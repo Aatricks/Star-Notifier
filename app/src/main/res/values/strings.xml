@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">Star Notifier</string>
+    
+    <!-- Configuration -->
+    <string name="github_configuration">GitHub Configuration</string>
+    <string name="github_username">GitHub Username</string>
+    <string name="personal_access_token">Personal Access Token (Optional)</string>
+    <string name="save_configuration">Save Configuration</string>
+    
+    <!-- Repository Stats -->
+    <string name="your_repositories">Your Repositories</string>
+    <string name="select_all_repositories">Select All Repositories</string>
+    <string name="deselect_all_repositories">Deselect All Repositories</string>
+    <string name="stars">Stars</string>
+    <string name="forks">Forks</string>
+    <string name="views">Views</string>
+    <string name="clones">Clones</string>
+    
+    <!-- Content Descriptions -->
+    <string name="total_stars">Total Stars</string>
+    <string name="total_forks">Total Forks</string>
+    <string name="total_views">Total Views</string>
+    <string name="total_clones">Total Clones</string>
+    <string name="select_repository">Select repository</string>
 </resources>
