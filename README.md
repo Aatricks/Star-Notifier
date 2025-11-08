@@ -6,7 +6,9 @@
 
 A GitHub star and fork notifier Android app made for anxious developers who want to know immediately when their repositories gain attention.
 
-<img src="HomeImage.png" alt="Star Notifier Screenshot" width="300" style="display: block; margin: 0 auto;" />
+<p align="center">
+<img src="HomeImage.png" alt="Star Notifier Screenshot" width="300" />
+</p>
 
 ## ✨ Features
 
