@@ -39,7 +39,7 @@ cd Star-Notifier
 ./gradlew installDebug
 ```
 
-## 📱 Setup
+## Setup
 
 1. **Launch the app** after installation
 2. **Grant notification permissions** when prompted
@@ -52,14 +52,14 @@ cd Star-Notifier
 6. **Select repositories** to monitor from the list (sorted by stars, shows repo name)
 7. **Save configuration** and start monitoring!
 
-## 🎯 Usage
+## Usage
 
 ### Background Monitoring
 - The app automatically checks for changes every 15 minutes
 - Notifications appear when repositories gain stars or forks
 - No manual intervention required once configured
 
-## 🧪 Testing
+## Testing
 
 ### Unit Tests
 ```bash
@@ -75,7 +75,7 @@ cd Star-Notifier
 1. Configure the app with your GitHub credentials
 2. Star/fork your test repositories to trigger real notifications
 
-## 🏗️ Technical Details
+## Technical Details
 
 ### Architecture
 - **MVVM Pattern**: Clean separation of concerns with ViewModels and LiveData
@@ -102,7 +102,7 @@ cd Star-Notifier
 - **GitHub REST API v3**: Public repository information and traffic data
 - **Rate Limits**: Respects GitHub's API rate limits (60 requests/hour for unauthenticated, 5000 for authenticated)
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
@@ -116,10 +116,6 @@ cd Star-Notifier
 - Update documentation for API changes
 - Test on multiple Android versions
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ---
 
-**Made for anxious people, by anxious people.** 🐙
+**Made for anxious people, by anxious people.**
