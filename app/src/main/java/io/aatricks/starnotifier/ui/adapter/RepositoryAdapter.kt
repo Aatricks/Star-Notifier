@@ -30,17 +30,29 @@ class RepositoryAdapter() :
         private val nameTextView: TextView = itemView.findViewById(R.id.repoNameTextView)
         private val starsTextView: TextView = itemView.findViewById(R.id.starsTextView)
         private val forksTextView: TextView = itemView.findViewById(R.id.forksTextView)
+        private val viewsTextView: TextView = itemView.findViewById(R.id.viewsTextView)
+        private val clonesTextView: TextView = itemView.findViewById(R.id.clonesTextView)
         private val checkBox: CheckBox = itemView.findViewById(R.id.repoCheckBox)
 
         fun bind(repository: Repository) {
             nameTextView.text = repository.name.substringAfter('/')
-            starsTextView.text = "${repository.currentStars} ⭐"
-            forksTextView.text = "${repository.currentForks} 🍴"
+            starsTextView.text = formatNumber(repository.currentStars)
+            forksTextView.text = formatNumber(repository.currentForks)
+            viewsTextView.text = formatNumber(repository.totalViews)
+            clonesTextView.text = formatNumber(repository.totalClones)
 
             checkBox.isChecked = repository.isSelected
 
             checkBox.setOnCheckedChangeListener { _, isChecked ->
                 onRepositorySelected?.invoke(repository.name, isChecked)
+            }
+        }
+        
+        private fun formatNumber(num: Int): String {
+            return when {
+                num >= 1000000 -> String.format("%.1fM", num / 1000000.0)
+                num >= 1000 -> String.format("%.1fk", num / 1000.0)
+                else -> num.toString()
             }
         }
     }

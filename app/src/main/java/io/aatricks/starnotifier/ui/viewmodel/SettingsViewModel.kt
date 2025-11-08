@@ -32,6 +32,18 @@ class SettingsViewModel(
 
     private val _totalsText = MutableLiveData<String>()
     val totalsText: LiveData<String> = _totalsText
+    
+    private val _totalStars = MutableLiveData<Int>()
+    val totalStars: LiveData<Int> = _totalStars
+    
+    private val _totalForks = MutableLiveData<Int>()
+    val totalForks: LiveData<Int> = _totalForks
+    
+    private val _totalViews = MutableLiveData<Int>()
+    val totalViews: LiveData<Int> = _totalViews
+    
+    private val _totalClones = MutableLiveData<Int>()
+    val totalClones: LiveData<Int> = _totalClones
 
     init {
         loadUserConfig()
@@ -77,6 +89,7 @@ class SettingsViewModel(
 
     fun updateRepositorySelection(repoName: String, isSelected: Boolean) {
         val currentConfig = _userConfig.value ?: return
+        val currentRepos = _repositories.value ?: return
         val currentSelected = currentConfig.selectedRepos.toMutableList()
 
         if (isSelected) {
@@ -88,9 +101,19 @@ class SettingsViewModel(
         }
 
         val updatedConfig = currentConfig.copy(selectedRepos = currentSelected)
+        val updatedRepos = currentRepos.map { repo ->
+            if (repo.name == repoName) {
+                repo.copy(isSelected = isSelected)
+            } else {
+                repo
+            }
+        }
+        
         viewModelScope.launch {
             localStorageRepository.saveUserConfig(updatedConfig).onSuccess {
                 _userConfig.value = updatedConfig
+                _repositories.value = updatedRepos
+                updateTotals(updatedRepos)
                 scheduleGitHubChecks()
             }
         }
@@ -126,9 +149,16 @@ class SettingsViewModel(
 
     private fun updateTotals(repos: List<Repository>) {
         val selectedRepos = repos.filter { it.isSelected }
-        val totalStars = selectedRepos.sumOf { it.currentStars }
-        val totalForks = selectedRepos.sumOf { it.currentForks }
-        _totalsText.value = "Total: $totalStars ⭐ | $totalForks 🍴"
+        val totalStarsValue = selectedRepos.sumOf { it.currentStars }
+        val totalForksValue = selectedRepos.sumOf { it.currentForks }
+        val totalViewsValue = selectedRepos.sumOf { it.totalViews }
+        val totalClonesValue = selectedRepos.sumOf { it.totalClones }
+        
+        _totalStars.value = totalStarsValue
+        _totalForks.value = totalForksValue
+        _totalViews.value = totalViewsValue
+        _totalClones.value = totalClonesValue
+        _totalsText.value = "Total: $totalStarsValue ⭐ | $totalForksValue 🍴"
     }
 
     private fun scheduleGitHubChecks() {
