@@ -12,6 +12,7 @@ A GitHub star and fork notifier Android app made for anxious developers who want
 
 <p align="center">
 <img src="assets/HomeImage.png" alt="Star Notifier Screenshot" width="300" />
+<img src="assets/Traffic.png" alt="Star Notifier Traffic graph Screenshot" width="300" />
 </p>
 
 ## ✨ Features
