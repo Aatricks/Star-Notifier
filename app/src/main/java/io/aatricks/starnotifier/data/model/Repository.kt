@@ -8,6 +8,10 @@ data class Repository(
     val totalClones: Int = 0,
     val lifetimeViews: Int = 0, // Accumulated views over time
     val lifetimeClones: Int = 0, // Accumulated clones over time
+    val twoWeekViews: Int = 0, // Views from last 2 weeks
+    val twoWeekClones: Int = 0, // Clones from last 2 weeks
+    val viewsData: List<TrafficEntry> = emptyList(), // Time series data for views
+    val clonesData: List<TrafficEntry> = emptyList(), // Time series data for clones
     val lastChecked: Long, // timestamp
     val isSelected: Boolean = false
 )

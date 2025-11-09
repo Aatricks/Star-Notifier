@@ -1,5 +1,6 @@
 package io.aatricks.starnotifier.ui.adapter
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,8 +9,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import io.aatricks.starnotifier.R
 import io.aatricks.starnotifier.data.model.Repository
+import io.aatricks.starnotifier.ui.view.RepositoryDetailActivity
 
 class RepositoryAdapter() :
     ListAdapter<Repository, RepositoryAdapter.RepositoryViewHolder>(RepositoryDiffCallback()) {
@@ -45,6 +48,15 @@ class RepositoryAdapter() :
 
             checkBox.setOnCheckedChangeListener { _, isChecked ->
                 onRepositorySelected?.invoke(repository.name, isChecked)
+            }
+            
+            // Make the whole item clickable to open detail view
+            itemView.setOnClickListener {
+                val context = itemView.context
+                val intent = Intent(context, RepositoryDetailActivity::class.java).apply {
+                    putExtra(RepositoryDetailActivity.EXTRA_REPOSITORY, Gson().toJson(repository))
+                }
+                context.startActivity(intent)
             }
         }
         

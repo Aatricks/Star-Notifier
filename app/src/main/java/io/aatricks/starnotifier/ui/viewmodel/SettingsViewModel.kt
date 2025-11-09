@@ -44,6 +44,9 @@ class SettingsViewModel(
     
     private val _totalClones = MutableLiveData<Int>()
     val totalClones: LiveData<Int> = _totalClones
+    
+    private val _isLifetimeMode = MutableLiveData<Boolean>(true)
+    val isLifetimeMode: LiveData<Boolean> = _isLifetimeMode
 
     init {
         loadUserConfig()
@@ -151,14 +154,29 @@ class SettingsViewModel(
         val selectedRepos = repos.filter { it.isSelected }
         val totalStarsValue = selectedRepos.sumOf { it.currentStars }
         val totalForksValue = selectedRepos.sumOf { it.currentForks }
-        val totalViewsValue = selectedRepos.sumOf { it.lifetimeViews }
-        val totalClonesValue = selectedRepos.sumOf { it.lifetimeClones }
+        
+        val isLifetime = _isLifetimeMode.value ?: true
+        val totalViewsValue = if (isLifetime) {
+            selectedRepos.sumOf { it.lifetimeViews }
+        } else {
+            selectedRepos.sumOf { it.twoWeekViews }
+        }
+        val totalClonesValue = if (isLifetime) {
+            selectedRepos.sumOf { it.lifetimeClones }
+        } else {
+            selectedRepos.sumOf { it.twoWeekClones }
+        }
         
         _totalStars.value = totalStarsValue
         _totalForks.value = totalForksValue
         _totalViews.value = totalViewsValue
         _totalClones.value = totalClonesValue
         _totalsText.value = "Total: $totalStarsValue ⭐ | $totalForksValue 🍴"
+    }
+    
+    fun setTrafficMode(isLifetime: Boolean) {
+        _isLifetimeMode.value = isLifetime
+        _repositories.value?.let { updateTotals(it) }
     }
 
     private fun scheduleGitHubChecks() {

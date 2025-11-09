@@ -65,6 +65,9 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging)
     
+    // Charts
+    implementation(libs.mpandroidchart)
+    
     // Dependency Injection
     // implementation(libs.hilt.android)
     // ksp(libs.hilt.compiler)
