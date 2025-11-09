@@ -15,6 +15,13 @@
     <string name="forks">Forks</string>
     <string name="views">Views</string>
     <string name="clones">Clones</string>
+    <string name="traffic_mode">Traffic Mode:</string>
+    <string name="lifetime">Lifetime</string>
+    <string name="two_weeks">2 Weeks</string>
+    
+    <!-- Traffic Details -->
+    <string name="traffic_views">Views Traffic</string>
+    <string name="traffic_clones">Clones Traffic</string>
     
     <!-- Content Descriptions -->
     <string name="total_stars">Total Stars</string>

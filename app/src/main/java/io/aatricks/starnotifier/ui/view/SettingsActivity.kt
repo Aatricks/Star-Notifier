@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
@@ -80,6 +81,7 @@ class SettingsActivity : AppCompatActivity() {
         
         val selectAllButton = findViewById<MaterialButton>(R.id.selectAllButton)
         val recyclerView = findViewById<RecyclerView>(R.id.repositoriesRecyclerView)
+        val trafficModeToggle = findViewById<MaterialButtonToggleGroup>(R.id.trafficModeToggle)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = repositoryAdapter
@@ -93,6 +95,17 @@ class SettingsActivity : AppCompatActivity() {
 
         selectAllButton.setOnClickListener {
             viewModel.toggleSelectAllRepositories()
+        }
+        
+        // Set up traffic mode toggle (default to lifetime)
+        trafficModeToggle.check(R.id.lifetimeButton)
+        trafficModeToggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                when (checkedId) {
+                    R.id.lifetimeButton -> viewModel.setTrafficMode(true)
+                    R.id.twoWeeksButton -> viewModel.setTrafficMode(false)
+                }
+            }
         }
 
         repositoryAdapter.onRepositorySelected = { repoName, isSelected ->
