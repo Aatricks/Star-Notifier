@@ -182,6 +182,7 @@ class SettingsViewModel(
     private fun scheduleGitHubChecks() {
         val workRequest = PeriodicWorkRequestBuilder<GitHubCheckWorker>(
             15, TimeUnit.MINUTES
+            //1, TimeUnit.MINUTES  // TEST: Changed to 1 minute for testing
         ).build()
 
         workManager.enqueueUniquePeriodicWork(

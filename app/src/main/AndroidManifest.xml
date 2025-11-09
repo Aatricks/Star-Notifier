@@ -41,6 +41,7 @@
             <intent-filter>
                 <action android:name="io.aatricks.starnotifier.TEST_STAR_NOTIFICATION" />
                 <action android:name="io.aatricks.starnotifier.TEST_FORK_NOTIFICATION" />
+                <action android:name="io.aatricks.starnotifier.TEST_WORKER" />
             </intent-filter>
         </receiver>
     </application>

@@ -4,7 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import io.aatricks.starnotifier.notification.NotificationHelper
+import io.aatricks.starnotifier.worker.GitHubCheckWorker
 
 class TestBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -21,6 +24,12 @@ class TestBroadcastReceiver : BroadcastReceiver() {
                 val notificationHelper = NotificationHelper(context)
                 notificationHelper.sendForkNotification("test/repo", 50)
                 Log.d("TestBroadcastReceiver", "Fork notification sent")
+            }
+            "io.aatricks.starnotifier.TEST_WORKER" -> {
+                Log.d("TestBroadcastReceiver", "Triggering worker")
+                val workRequest = OneTimeWorkRequestBuilder<GitHubCheckWorker>().build()
+                WorkManager.getInstance(context).enqueue(workRequest)
+                Log.d("TestBroadcastReceiver", "Worker triggered")
             }
         }
     }
