@@ -4,10 +4,14 @@
 [![GitHub issues](https://img.shields.io/github/issues/Aatricks/Star-Notifier)](https://github.com/Aatricks/Star-Notifier/issues)
 [![GitHub stars](https://img.shields.io/github/stars/Aatricks/Star-Notifier?style=social)](https://github.com/Aatricks/Star-Notifier/stargazers)
 
+<p align="center">
+<img src="assets/icon.png" alt="Star Notifier Icon" width="72" />
+</p>
+
 A GitHub star and fork notifier Android app made for anxious developers who want to know immediately when their repositories gain attention.
 
 <p align="center">
-<img src="HomeImage.png" alt="Star Notifier Screenshot" width="300" />
+<img src="assets/HomeImage.png" alt="Star Notifier Screenshot" width="300" />
 </p>
 
 ## ✨ Features
