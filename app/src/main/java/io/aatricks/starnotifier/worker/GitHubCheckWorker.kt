@@ -33,7 +33,7 @@ class GitHubCheckWorker(
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
     private val apiService = retrofit.create(GitHubApiService::class.java)
-    private val gitHubRepository = GitHubRepository(apiService)
+    private val gitHubRepository = GitHubRepository(apiService, sharedPreferencesStorage)
 
     override suspend fun doWork(): Result {
         return try {

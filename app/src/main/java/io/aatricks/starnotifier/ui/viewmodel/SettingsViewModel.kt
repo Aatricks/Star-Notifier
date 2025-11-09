@@ -151,8 +151,8 @@ class SettingsViewModel(
         val selectedRepos = repos.filter { it.isSelected }
         val totalStarsValue = selectedRepos.sumOf { it.currentStars }
         val totalForksValue = selectedRepos.sumOf { it.currentForks }
-        val totalViewsValue = selectedRepos.sumOf { it.totalViews }
-        val totalClonesValue = selectedRepos.sumOf { it.totalClones }
+        val totalViewsValue = selectedRepos.sumOf { it.lifetimeViews }
+        val totalClonesValue = selectedRepos.sumOf { it.lifetimeClones }
         
         _totalStars.value = totalStarsValue
         _totalForks.value = totalForksValue

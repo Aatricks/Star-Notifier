@@ -39,10 +39,10 @@ class NotificationHelper(
 
     fun sendStarNotification(repoName: String, newCount: Int) {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO: Add proper icon
+            .setSmallIcon(R.drawable.ic_star)
             .setContentTitle("⭐ New star on $repoName")
             .setContentText("Repository now has $newCount stars")
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
 
@@ -51,10 +51,10 @@ class NotificationHelper(
 
     fun sendForkNotification(repoName: String, newCount: Int) {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO: Add proper icon
+            .setSmallIcon(R.drawable.ic_fork)
             .setContentTitle("🍴 New fork on $repoName")
             .setContentText("Repository now has $newCount forks")
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
 

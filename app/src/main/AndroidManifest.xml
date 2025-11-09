@@ -26,6 +26,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Test broadcast receiver for manual notification testing -->
+        <receiver
+            android:name=".receiver.TestBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.aatricks.starnotifier.TEST_STAR_NOTIFICATION" />
+                <action android:name="io.aatricks.starnotifier.TEST_FORK_NOTIFICATION" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

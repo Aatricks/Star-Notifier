@@ -49,7 +49,7 @@ class SettingsActivity : AppCompatActivity() {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
         val apiService = retrofit.create(GitHubApiService::class.java)
-        val gitHubRepository = GitHubRepository(apiService)
+        val gitHubRepository = GitHubRepository(apiService, sharedPreferencesStorage)
         val workManager = WorkManager.getInstance(this)
 
         // Create ViewModel
@@ -64,6 +64,9 @@ class SettingsActivity : AppCompatActivity() {
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         val navigationView = findViewById<NavigationView>(R.id.navigationView)
+        
+        // Enable swipe gesture to open drawer
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         
         // Setup toolbar with drawer toggle
         toolbar.setNavigationOnClickListener {

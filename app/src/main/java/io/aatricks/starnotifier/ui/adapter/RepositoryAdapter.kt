@@ -38,8 +38,8 @@ class RepositoryAdapter() :
             nameTextView.text = repository.name.substringAfter('/')
             starsTextView.text = formatNumber(repository.currentStars)
             forksTextView.text = formatNumber(repository.currentForks)
-            viewsTextView.text = formatNumber(repository.totalViews)
-            clonesTextView.text = formatNumber(repository.totalClones)
+            viewsTextView.text = formatNumber(repository.lifetimeViews)
+            clonesTextView.text = formatNumber(repository.lifetimeClones)
 
             checkBox.isChecked = repository.isSelected
 
