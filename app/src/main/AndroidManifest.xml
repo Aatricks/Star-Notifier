@@ -27,6 +27,13 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.view.RepositoryDetailActivity"
+            android:exported="false"
+            android:label="Repository Traffic"
+            android:theme="@style/Theme.StarNotifier"
+            android:parentActivityName=".ui.view.SettingsActivity" />
+
         <!-- Test broadcast receiver for manual notification testing -->
         <receiver
             android:name=".receiver.TestBroadcastReceiver"

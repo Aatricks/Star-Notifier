@@ -28,6 +28,10 @@
     <color name="github_red">#CF222E</color>
     <color name="github_purple">#8250DF</color>
     
+    <!-- Chart colors -->
+    <color name="chart_primary">#0969DA</color>
+    <color name="chart_secondary">#1A7F37</color>
+    
     <!-- Legacy Material colors -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
