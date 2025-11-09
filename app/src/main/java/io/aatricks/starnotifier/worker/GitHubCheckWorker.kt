@@ -37,9 +37,6 @@ class GitHubCheckWorker(
 
     override suspend fun doWork(): Result {
         return try {
-            // Send test notification to verify worker is running
-            // notificationHelper.sendTestNotification()
-
             // Get user config
             val userConfig = sharedPreferencesStorage.getUserConfig().getOrNull()
                 ?: return Result.success() // No config, nothing to do

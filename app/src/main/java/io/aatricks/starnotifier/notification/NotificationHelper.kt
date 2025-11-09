@@ -60,17 +60,4 @@ class NotificationHelper(
 
         NotificationManagerCompat.from(context).notify(FORK_NOTIFICATION_ID, notification)
     }
-
-    fun sendTestNotification() {
-        val timestamp = System.currentTimeMillis()
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_star)
-            .setContentTitle("🧪 Test Notification")
-            .setContentText("Worker running at ${java.text.SimpleDateFormat("HH:mm:ss").format(timestamp)}")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        NotificationManagerCompat.from(context).notify(timestamp.toInt(), notification)
-    }
 }
