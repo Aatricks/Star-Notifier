@@ -1,10 +1,12 @@
 package io.aatricks.starnotifier.ui.view
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,43 +16,44 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
-import com.google.gson.Gson
 import io.aatricks.starnotifier.R
 import io.aatricks.starnotifier.data.local.SharedPreferencesStorage
+import io.aatricks.starnotifier.data.network.NetworkClient
 import io.aatricks.starnotifier.data.repository.GitHubApiService
 import io.aatricks.starnotifier.data.repository.GitHubRepository
 import io.aatricks.starnotifier.ui.adapter.RepositoryAdapter
 import io.aatricks.starnotifier.ui.viewmodel.SettingsViewModel
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var viewModel: SettingsViewModel
     private lateinit var repositoryAdapter: RepositoryAdapter
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        // Handle permission granted/rejected if needed
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
+        // Request notification permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
         // Create dependencies
         val sharedPreferencesStorage = SharedPreferencesStorage(this)
-        val gson = Gson()
-        val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .build()
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.github.com/")
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-        val apiService = retrofit.create(GitHubApiService::class.java)
-        val gitHubRepository = GitHubRepository(apiService, sharedPreferencesStorage)
+        val apiService = NetworkClient.getRetrofitInstance().create(GitHubApiService::class.java)
+        val gitHubRepository = io.aatricks.starnotifier.data.repository.GitHubRepositoryImpl(apiService, sharedPreferencesStorage)
         val workManager = WorkManager.getInstance(this)
 
         // Create ViewModel

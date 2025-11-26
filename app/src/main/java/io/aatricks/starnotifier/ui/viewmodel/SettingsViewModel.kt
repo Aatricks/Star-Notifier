@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import io.aatricks.starnotifier.data.local.LocalStorageRepository
@@ -85,7 +87,12 @@ class SettingsViewModel(
             localStorageRepository.saveUserConfig(config).onSuccess {
                 _userConfig.value = config
                 loadRepositories(username, token)
-                scheduleGitHubChecks()
+                
+                if (!token.isNullOrEmpty()) {
+                    scheduleGitHubChecks()
+                } else {
+                    workManager.cancelUniqueWork("GitHubCheckWork")
+                }
             }
         }
     }
@@ -145,7 +152,12 @@ class SettingsViewModel(
                 _userConfig.value = updatedConfig
                 _repositories.value = updatedRepos
                 updateTotals(updatedRepos)
-                scheduleGitHubChecks()
+                
+                if (updatedConfig.selectedRepos.isNotEmpty() && !updatedConfig.personalAccessToken.isNullOrEmpty()) {
+                    scheduleGitHubChecks()
+                } else {
+                    workManager.cancelUniqueWork("GitHubCheckWork")
+                }
             }
         }
     }
@@ -180,9 +192,15 @@ class SettingsViewModel(
     }
 
     private fun scheduleGitHubChecks() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
         val workRequest = PeriodicWorkRequestBuilder<GitHubCheckWorker>(
             15, TimeUnit.MINUTES
-        ).build()
+        )
+            .setConstraints(constraints)
+            .build()
 
         workManager.enqueueUniquePeriodicWork(
             "GitHubCheckWork",

@@ -2,17 +2,38 @@ package io.aatricks.starnotifier.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.aatricks.starnotifier.data.model.Repository
 import io.aatricks.starnotifier.data.model.UserConfig
 
 class SharedPreferencesStorage(
     private val context: Context,
-    private val gson: Gson = Gson()
+    private val gson: Gson = Gson(),
+    private val useEncryption: Boolean = true
 ) : LocalStorageRepository {
 
-    private val prefs: SharedPreferences = context.getSharedPreferences("star_notifier_prefs", Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences by lazy {
+        if (!useEncryption) {
+             context.getSharedPreferences("star_notifier_prefs", Context.MODE_PRIVATE)
+        } else {
+            try {
+                val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+
+                EncryptedSharedPreferences.create(
+                    "secret_star_notifier_prefs",
+                    masterKeyAlias,
+                    context,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                )
+            } catch (e: Exception) {
+                // Fallback to standard prefs if encryption is not supported or fails
+                context.getSharedPreferences("star_notifier_prefs", Context.MODE_PRIVATE)
+            }
+        }
+    }
 
     companion object {
         private const val KEY_USER_CONFIG = "user_config"
@@ -22,7 +43,7 @@ class SharedPreferencesStorage(
     override suspend fun saveRepositoryData(repo: Repository): Result<Unit> {
         return try {
             val json = gson.toJson(repo)
-            prefs.edit().putString("$KEY_REPO_PREFIX${repo.name}", json).apply()
+            prefs.edit().putString("$KEY_REPO_PREFIX${repo.name}", json).commit()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -52,7 +73,7 @@ class SharedPreferencesStorage(
     override suspend fun saveUserConfig(config: UserConfig): Result<Unit> {
         return try {
             val json = gson.toJson(config)
-            prefs.edit().putString(KEY_USER_CONFIG, json).apply()
+            prefs.edit().putString(KEY_USER_CONFIG, json).commit()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

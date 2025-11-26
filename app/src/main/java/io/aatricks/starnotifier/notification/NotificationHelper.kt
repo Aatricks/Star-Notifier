@@ -15,8 +15,6 @@ class NotificationHelper(
     companion object {
         private const val CHANNEL_ID = "github_channel"
         private const val CHANNEL_NAME = "GitHub Notifications"
-        private const val STAR_NOTIFICATION_ID = 1001
-        private const val FORK_NOTIFICATION_ID = 1002
     }
 
     init {
@@ -38,6 +36,15 @@ class NotificationHelper(
     }
 
     fun sendStarNotification(repoName: String, newCount: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_star)
             .setContentTitle("⭐ New star on $repoName")
@@ -46,10 +53,21 @@ class NotificationHelper(
             .setAutoCancel(true)
             .build()
 
-        NotificationManagerCompat.from(context).notify(STAR_NOTIFICATION_ID, notification)
+        // Use a unique ID based on repo name and type (star)
+        val notificationId = (repoName + "star").hashCode()
+        NotificationManagerCompat.from(context).notify(notificationId, notification)
     }
 
     fun sendForkNotification(repoName: String, newCount: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_fork)
             .setContentTitle("🍴 New fork on $repoName")
@@ -58,6 +76,8 @@ class NotificationHelper(
             .setAutoCancel(true)
             .build()
 
-        NotificationManagerCompat.from(context).notify(FORK_NOTIFICATION_ID, notification)
+        // Use a unique ID based on repo name and type (fork)
+        val notificationId = (repoName + "fork").hashCode()
+        NotificationManagerCompat.from(context).notify(notificationId, notification)
     }
 }
