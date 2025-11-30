@@ -44,21 +44,25 @@ class GitHubCheckWorker(
     private val gitHubRepository =
         gitHubRepositoryParam ?: GitHubRepository(apiService, sharedPreferencesStorage as? SharedPreferencesStorage)
 
+    companion object {
+        private const val TAG = "GitHubCheckWorker"
+    }
+
     init {
         Log.d(
-            "GitHubCheckWorker",
+            TAG,
             "Initialized. useInjectedGitHubRepository=${gitHubRepositoryParam != null}, useInjectedLocalStorage=${localStorageRepositoryParam != null}, useInjectedNotificationHelper=${notificationHelperParam != null}"
         )
     }
 
     override suspend fun doWork(): Result {
-        Log.d("GitHubCheckWorker", "Starting doWork")
+        Log.d(TAG, "Starting doWork")
 
         return try {
             // Get user config
             val userConfig = sharedPreferencesStorage.getUserConfig().getOrNull()
             if (userConfig == null) {
-                Log.d("GitHubCheckWorker", "No user config found - skipping work")
+                Log.d(TAG, "No user config found - skipping work")
                 return Result.success() // No config, nothing to do
             }
 
@@ -67,12 +71,12 @@ class GitHubCheckWorker(
                 ?: emptyList()
 
             if (selectedRepos.isEmpty()) {
-                Log.d("GitHubCheckWorker", "No selected repositories found - skipping work")
+                Log.d(TAG, "No selected repositories found - skipping work")
                 return Result.success()
             }
 
             Log.d(
-                "GitHubCheckWorker",
+                TAG,
                 "Found ${selectedRepos.size} selected repositories: ${selectedRepos.joinToString(",")}"
             )
 
@@ -118,18 +122,18 @@ class GitHubCheckWorker(
 
             // Check for changes
             for (repoName in selectedRepos) {
-                Log.d("GitHubCheckWorker", "Checking selected repo: $repoName")
+                Log.d(TAG, "Checking selected repo: $repoName")
                 val currentRepo = currentRepos.find { it.name == repoName }
                 if (currentRepo != null) {
                     Log.d(
-                        "GitHubCheckWorker",
+                        TAG,
                         "Current data for ${currentRepo.name}: stars=${currentRepo.currentStars}, forks=${currentRepo.currentForks}"
                     )
 
                     val storedRepo = sharedPreferencesStorage.getRepositoryData(repoName).getOrNull()
                     if (storedRepo != null) {
                         Log.d(
-                            "GitHubCheckWorker",
+                            TAG,
                             "Stored data for ${repoName}: stars=${storedRepo.currentStars}, forks=${storedRepo.currentForks}"
                         )
 
@@ -141,7 +145,7 @@ class GitHubCheckWorker(
                             )
                             notificationHelper.sendStarNotification(repoName, currentRepo.currentStars)
                         } else {
-                            Log.d("GitHubCheckWorker", "No star change for ${repoName}")
+                            Log.d(TAG, "No star change for ${repoName}")
                         }
 
                         // Check for fork changes
@@ -152,21 +156,21 @@ class GitHubCheckWorker(
                             )
                             notificationHelper.sendForkNotification(repoName, currentRepo.currentForks)
                         } else {
-                            Log.d("GitHubCheckWorker", "No fork change for ${repoName}")
+                            Log.d(TAG, "No fork change for ${repoName}")
                         }
                     } else {
-                        Log.d("GitHubCheckWorker", "No stored data for ${repoName}; initializing stored entry")
+                        Log.d(TAG, "No stored data for ${repoName}; initializing stored entry")
                     }
 
                     // Update stored data
                     sharedPreferencesStorage.saveRepositoryData(currentRepo)
-                    Log.d("GitHubCheckWorker", "Saved updated data for ${currentRepo.name}")
+                    Log.d(TAG, "Saved updated data for ${currentRepo.name}")
                 } else {
-                    Log.d("GitHubCheckWorker", "Selected repo ${repoName} not found in fetched repo list")
+                    Log.d(TAG, "Selected repo ${repoName} not found in fetched repo list")
                 }
             }
 
-            Log.d("GitHubCheckWorker", "All selected repositories processed successfully")
+            Log.d(TAG, "All selected repositories processed successfully")
             Result.success()
         } catch (e: Exception) {
             Log.e(TAG, "Error while running doWork: ${e.message}", e)
