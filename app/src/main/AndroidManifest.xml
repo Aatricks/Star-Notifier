@@ -1,9 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".App"
@@ -14,12 +17,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.StarNotifier">
+        android:theme="@style/Theme.StarNotifier"
+    >
         <activity
             android:name=".ui.view.SettingsActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.StarNotifier">
+            android:theme="@style/Theme.StarNotifier"
+        >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,16 +37,32 @@
             android:exported="false"
             android:label="Repository Traffic"
             android:theme="@style/Theme.StarNotifier"
-            android:parentActivityName=".ui.view.SettingsActivity" />
+            android:parentActivityName=".ui.view.SettingsActivity"
+        />
 
         <!-- Test broadcast receiver for manual notification testing -->
         <receiver
             android:name=".receiver.TestBroadcastReceiver"
-            android:exported="true">
+            android:exported="true"
+        >
             <intent-filter>
-                <action android:name="io.aatricks.starnotifier.TEST_STAR_NOTIFICATION" />
-                <action android:name="io.aatricks.starnotifier.TEST_FORK_NOTIFICATION" />
+                <action
+                    android:name="io.aatricks.starnotifier.TEST_STAR_NOTIFICATION"
+                />
+                <action
+                    android:name="io.aatricks.starnotifier.TEST_FORK_NOTIFICATION"
+                />
                 <action android:name="io.aatricks.starnotifier.TEST_WORKER" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Boot receiver to reschedule periodic background checks after boot or package update -->
+        <receiver android:name=".receiver.BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action
+                    android:name="android.intent.action.MY_PACKAGE_REPLACED"
+                />
             </intent-filter>
         </receiver>
     </application>

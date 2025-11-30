@@ -60,9 +60,11 @@ cd Star-Notifier
 ## Usage
 
 ### Background Monitoring
-- The app automatically checks for changes every 15 minutes
-- Notifications appear when repositories gain stars or forks
-- No manual intervention required once configured
+- The app schedules periodic checks every 15 minutes using Android WorkManager and will schedule the worker when the app starts.
+- WorkManager ensures the checks persist and are executed reliably across app restarts and device reboots; the app also includes a BootReceiver to help re-enqueue the periodic checks when the system restarts or the app package is replaced.
+- Background checks require network connectivity and respect device power saving constraints, so checks execute only when the device meets those constraints.
+- Notifications appear when monitored repositories gain stars or forks; the worker updates repository stats in local storage so the app UI reflects the latest totals on the next app open.
+- You can manually trigger background actions for testing using the included `TestBroadcastReceiver` via an ADB broadcast.
 
 ## Testing
 

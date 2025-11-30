@@ -1,9 +1,11 @@
 package io.aatricks.starnotifier.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
+import io.aatricks.starnotifier.data.local.LocalStorageRepository
 import io.aatricks.starnotifier.data.local.SharedPreferencesStorage
 import io.aatricks.starnotifier.data.repository.GitHubApiService
 import io.aatricks.starnotifier.data.repository.GitHubRepository
@@ -12,14 +14,20 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.HttpException
+import java.io.IOException
 
 class GitHubCheckWorker(
     appContext: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
+    private val gitHubRepositoryParam: GitHubRepository? = null,
+    private val localStorageRepositoryParam: LocalStorageRepository? = null,
+    private val notificationHelperParam: NotificationHelper? = null
 ) : CoroutineWorker(appContext, workerParams) {
 
-    private val notificationHelper = NotificationHelper(appContext)
-    private val sharedPreferencesStorage = SharedPreferencesStorage(appContext)
+    private val notificationHelper = notificationHelperParam ?: NotificationHelper(appContext)
+    private val sharedPreferencesStorage: LocalStorageRepository =
+        localStorageRepositoryParam ?: SharedPreferencesStorage(appContext)
     private val gson = Gson()
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -33,52 +41,157 @@ class GitHubCheckWorker(
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
     private val apiService = retrofit.create(GitHubApiService::class.java)
-    private val gitHubRepository = GitHubRepository(apiService, sharedPreferencesStorage)
+    private val gitHubRepository =
+        gitHubRepositoryParam ?: GitHubRepository(apiService, sharedPreferencesStorage as? SharedPreferencesStorage)
+
+    init {
+        Log.d(
+            "GitHubCheckWorker",
+            "Initialized. useInjectedGitHubRepository=${gitHubRepositoryParam != null}, useInjectedLocalStorage=${localStorageRepositoryParam != null}, useInjectedNotificationHelper=${notificationHelperParam != null}"
+        )
+    }
 
     override suspend fun doWork(): Result {
+        Log.d("GitHubCheckWorker", "Starting doWork")
+
         return try {
             // Get user config
             val userConfig = sharedPreferencesStorage.getUserConfig().getOrNull()
-                ?: return Result.success() // No config, nothing to do
+            if (userConfig == null) {
+                Log.d("GitHubCheckWorker", "No user config found - skipping work")
+                return Result.success() // No config, nothing to do
+            }
 
             // Get selected repos
             val selectedRepos = sharedPreferencesStorage.getAllSelectedRepos().getOrNull()
                 ?: emptyList()
 
-            if (selectedRepos.isEmpty()) return Result.success()
+            if (selectedRepos.isEmpty()) {
+                Log.d("GitHubCheckWorker", "No selected repositories found - skipping work")
+                return Result.success()
+            }
+
+            Log.d(
+                "GitHubCheckWorker",
+                "Found ${selectedRepos.size} selected repositories: ${selectedRepos.joinToString(",")}"
+            )
 
             // Fetch current data from GitHub
-            val currentRepos = gitHubRepository.getUserRepositories(
+            val repoResult = gitHubRepository.getUserRepositories(
                 userConfig.username,
                 userConfig.personalAccessToken
-            ).getOrNull() ?: return Result.failure()
+            )
+
+            val currentRepos = repoResult.getOrNull()
+            if (currentRepos == null) {
+                val ex = repoResult.exceptionOrNull()
+                ex?.let {
+                    Log.e(TAG, "Failed to fetch repositories from GitHub: ${it.message}", it)
+                } ?: Log.e(TAG, "Failed to fetch repositories from GitHub for unknown reason")
+
+                // Choose retry vs permanent failure based on the exception type / HTTP code
+                return when (ex) {
+                    is IOException -> {
+                        Log.d(TAG, "Retrying due to network error")
+                        Result.retry()
+                    }
+
+                    is HttpException -> {
+                        val code = ex.code()
+                        if (code == 429 || code >= 500) {
+                            Log.d(TAG, "Retrying due to server error (HTTP $code)")
+                            Result.retry()
+                        } else {
+                            Log.d(TAG, "Failing due to client HTTP error (HTTP $code)")
+                            Result.failure()
+                        }
+                    }
+
+                    else -> {
+                        Log.d(TAG, "Retrying due to unknown error (default to retry)")
+                        Result.retry()
+                    }
+                }
+            }
+
+            Log.d(TAG, "Fetched ${currentRepos.size} repository entries from GitHub")
 
             // Check for changes
             for (repoName in selectedRepos) {
+                Log.d("GitHubCheckWorker", "Checking selected repo: $repoName")
                 val currentRepo = currentRepos.find { it.name == repoName }
                 if (currentRepo != null) {
-                    val storedRepo = sharedPreferencesStorage.getRepositoryData(repoName).getOrNull()
+                    Log.d(
+                        "GitHubCheckWorker",
+                        "Current data for ${currentRepo.name}: stars=${currentRepo.currentStars}, forks=${currentRepo.currentForks}"
+                    )
 
+                    val storedRepo = sharedPreferencesStorage.getRepositoryData(repoName).getOrNull()
                     if (storedRepo != null) {
+                        Log.d(
+                            "GitHubCheckWorker",
+                            "Stored data for ${repoName}: stars=${storedRepo.currentStars}, forks=${storedRepo.currentForks}"
+                        )
+
                         // Check for star changes
                         if (currentRepo.currentStars > storedRepo.currentStars) {
+                            Log.d(
+                                "GitHubCheckWorker",
+                                "Star increase detected for ${repoName}: ${storedRepo.currentStars} -> ${currentRepo.currentStars}"
+                            )
                             notificationHelper.sendStarNotification(repoName, currentRepo.currentStars)
+                        } else {
+                            Log.d("GitHubCheckWorker", "No star change for ${repoName}")
                         }
 
                         // Check for fork changes
                         if (currentRepo.currentForks > storedRepo.currentForks) {
+                            Log.d(
+                                "GitHubCheckWorker",
+                                "Fork increase detected for ${repoName}: ${storedRepo.currentForks} -> ${currentRepo.currentForks}"
+                            )
                             notificationHelper.sendForkNotification(repoName, currentRepo.currentForks)
+                        } else {
+                            Log.d("GitHubCheckWorker", "No fork change for ${repoName}")
                         }
+                    } else {
+                        Log.d("GitHubCheckWorker", "No stored data for ${repoName}; initializing stored entry")
                     }
 
                     // Update stored data
                     sharedPreferencesStorage.saveRepositoryData(currentRepo)
+                    Log.d("GitHubCheckWorker", "Saved updated data for ${currentRepo.name}")
+                } else {
+                    Log.d("GitHubCheckWorker", "Selected repo ${repoName} not found in fetched repo list")
                 }
             }
 
+            Log.d("GitHubCheckWorker", "All selected repositories processed successfully")
             Result.success()
         } catch (e: Exception) {
-            Result.failure()
+            Log.e(TAG, "Error while running doWork: ${e.message}", e)
+            return when (e) {
+                is IOException -> {
+                    Log.d(TAG, "Retrying due to IO exception: ${e.message}")
+                    Result.retry()
+                }
+
+                is HttpException -> {
+                    val code = e.code()
+                    if (code == 429 || code >= 500) {
+                        Log.d(TAG, "Retrying due to HTTP server error: $code")
+                        Result.retry()
+                    } else {
+                        Log.d(TAG, "Permanent HTTP error (HTTP $code), failing")
+                        Result.failure()
+                    }
+                }
+
+                else -> {
+                    Log.d(TAG, "Retrying due to unknown exception type (defaulting to retry).")
+                    Result.retry()
+                }
+            }
         }
     }
 }

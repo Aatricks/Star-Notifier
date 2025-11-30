@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import io.aatricks.starnotifier.data.local.LocalStorageRepository
 import io.aatricks.starnotifier.data.model.Repository
 import io.aatricks.starnotifier.data.model.UserConfig
@@ -32,19 +34,19 @@ class SettingsViewModel(
 
     private val _totalsText = MutableLiveData<String>()
     val totalsText: LiveData<String> = _totalsText
-    
+
     private val _totalStars = MutableLiveData<Int>()
     val totalStars: LiveData<Int> = _totalStars
-    
+
     private val _totalForks = MutableLiveData<Int>()
     val totalForks: LiveData<Int> = _totalForks
-    
+
     private val _totalViews = MutableLiveData<Int>()
     val totalViews: LiveData<Int> = _totalViews
-    
+
     private val _totalClones = MutableLiveData<Int>()
     val totalClones: LiveData<Int> = _totalClones
-    
+
     private val _isLifetimeMode = MutableLiveData<Boolean>(true)
     val isLifetimeMode: LiveData<Boolean> = _isLifetimeMode
 
@@ -111,7 +113,7 @@ class SettingsViewModel(
                 repo
             }
         }
-        
+
         viewModelScope.launch {
             localStorageRepository.saveUserConfig(updatedConfig).onSuccess {
                 _userConfig.value = updatedConfig
@@ -154,7 +156,7 @@ class SettingsViewModel(
         val selectedRepos = repos.filter { it.isSelected }
         val totalStarsValue = selectedRepos.sumOf { it.currentStars }
         val totalForksValue = selectedRepos.sumOf { it.currentForks }
-        
+
         val isLifetime = _isLifetimeMode.value ?: true
         val totalViewsValue = if (isLifetime) {
             selectedRepos.sumOf { it.lifetimeViews }
@@ -166,23 +168,27 @@ class SettingsViewModel(
         } else {
             selectedRepos.sumOf { it.twoWeekClones }
         }
-        
+
         _totalStars.value = totalStarsValue
         _totalForks.value = totalForksValue
         _totalViews.value = totalViewsValue
         _totalClones.value = totalClonesValue
         _totalsText.value = "Total: $totalStarsValue ⭐ | $totalForksValue 🍴"
     }
-    
+
     fun setTrafficMode(isLifetime: Boolean) {
         _isLifetimeMode.value = isLifetime
         _repositories.value?.let { updateTotals(it) }
     }
 
     private fun scheduleGitHubChecks() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
         val workRequest = PeriodicWorkRequestBuilder<GitHubCheckWorker>(
             15, TimeUnit.MINUTES
-        ).build()
+        ).setConstraints(constraints).build()
 
         workManager.enqueueUniquePeriodicWork(
             "GitHubCheckWork",
