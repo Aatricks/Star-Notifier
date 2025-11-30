@@ -1,10 +1,15 @@
 package io.aatricks.starnotifier.ui.view
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,9 +36,17 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var viewModel: SettingsViewModel
     private lateinit var repositoryAdapter: RepositoryAdapter
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        // Handle permission result
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        checkNotificationPermission()
 
         // Create dependencies
         val sharedPreferencesStorage = SharedPreferencesStorage(this)
@@ -162,5 +175,17 @@ class SettingsActivity : AppCompatActivity() {
             getString(R.string.deselect_all_repositories) 
         else 
             getString(R.string.select_all_repositories)
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
 }
